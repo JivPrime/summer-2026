@@ -1,0 +1,131 @@
+\documentclass[11pt]{article}
+\usepackage[a4paper,margin=2cm]{geometry}
+\usepackage{amsmath,amssymb}
+\usepackage[european]{circuitikz}
+\usepackage{tcolorbox}
+\tcbuselibrary{skins,breakable}
+\usepackage{enumitem}
+\usepackage{xcolor}
+\usepackage{parskip}
+\usepackage{mdframed}
+\setlist{nosep,leftmargin=1.5em,topsep=2pt}
+
+\definecolor{cblue}{HTML}{185FA5}
+\definecolor{cbluebg}{HTML}{E6F1FB}
+\definecolor{cteal}{HTML}{0F6E56}
+\definecolor{ctealbg}{HTML}{E1F5EE}
+
+\newtcolorbox{concept}[1]{colback=cbluebg,colframe=cblue,fonttitle=\bfseries\color{white},
+  coltitle=white,title=#1,boxrule=0.6pt,arc=2pt,left=6pt,right=6pt,top=4pt,bottom=4pt}
+\newtcolorbox{answer}{colback=ctealbg,colframe=cteal,boxrule=0.6pt,arc=2pt,
+  left=6pt,right=6pt,top=3pt,bottom=3pt}
+
+\newcommand{\key}[1]{\textbf{#1}}
+
+\begin{document}
+
+\begin{center}
+{\LARGE\bfseries Th\'evenin Equivalents \& Loading}\\[2pt]
+{\large End-of-day write-up}\\[2pt]
+{\small 17 June 2026 \quad$\cdot$\quad Summer self-study, Day 2 PM}
+\end{center}
+
+\vspace{4pt}
+
+\begin{concept}{Th\'evenin in three lines}
+\begin{itemize}
+\item Any \key{linear two-terminal network} looks, from its terminals, like one \key{$V_{Th}$ in series with one $R_{Th}$}.
+\item \key{$V_{Th}$} = the \key{open-circuit voltage} (measured with nothing connected).
+\item \key{$R_{Th}$} = the resistance \key{looking back in} with sources killed: a \key{voltage source $\to$ short}, a \key{current source $\to$ open}.
+\end{itemize}
+\end{concept}
+
+\section*{Worked example: a loaded voltage divider}
+
+\textbf{Problem.} A $10\,\mathrm{k}\Omega$ / $10\,\mathrm{k}\Omega$ divider runs from $5\,$V.
+\textbf{(a)} Find its Th\'evenin equivalent.
+\textbf{(b)} Find the output voltage when loaded by $10\,\mathrm{k}\Omega$, $1\,\mathrm{k}\Omega$ and $100\,\Omega$.
+
+\smallskip
+\textbf{Assumptions \& laws.} Ideal $5\,$V source; resistor values exact; voltage-divider rule and Th\'evenin reduction; meter assumed not to load the circuit.
+
+\subsection*{(a) The Th\'evenin equivalent}
+
+\textbf{Open-circuit voltage} (no load $\Rightarrow$ no current through the divider, clean ratio):
+\[
+V_{Th} = 5 \times \frac{10\,\mathrm{k}}{10\,\mathrm{k}+10\,\mathrm{k}} = 2.5\,\text{V}
+\]
+
+\textbf{Look-back resistance} --- kill the source (short the $5\,$V); the two $10\,\mathrm{k}$ now hang from the output to ground in \key{parallel}:
+\[
+R_{Th} = 10\,\mathrm{k} \parallel 10\,\mathrm{k} = \frac{10\,\mathrm{k}\times 10\,\mathrm{k}}{10\,\mathrm{k}+10\,\mathrm{k}} = 5\,\mathrm{k}\Omega
+\]
+
+\begin{answer}
+\[ \boxed{V_{Th} = 2.5\,\text{V}} \qquad \boxed{R_{Th} = 5\,\mathrm{k}\Omega} \]
+\end{answer}
+
+\begin{center}
+\begin{circuitikz}[european, scale=0.92, transform shape]
+\draw (0,3.4) node[above]{$5\,$V} to[R, l=$10\,\mathrm{k}\Omega$] (0,1.7)
+  to[R, l_=$10\,\mathrm{k}\Omega$] (0,0) node[ground]{};
+\draw (0,1.7) to[short, -o] (1.7,1.7) node[right]{$X$};
+\node[circ] at (0,1.7){};
+\draw[->, thick] (2.9,1.7) -- (4.2,1.7) node[midway, above]{Th\'evenin};
+\draw (5.4,0) node[ground]{} to[V=$2.5\,$V] (5.4,1.7)
+  to[R, l=$5\,\mathrm{k}\Omega$] (5.4,3.4) to[short, -o] (7.0,3.4) node[right]{$X$};
+\end{circuitikz}
+\end{center}
+
+\subsection*{(b) Output under load}
+
+The load $R_L$ and $R_{Th}$ form a fresh divider, so:
+\[
+V_{out} = V_{Th}\,\frac{R_L}{R_{Th}+R_L} = 2.5\,\frac{R_L}{5\,\mathrm{k}+R_L}
+\]
+
+\begin{itemize}
+\item $R_L = 10\,\mathrm{k}\Omega:\quad 2.5\times\dfrac{10}{5+10} = \mathbf{1.67\,V}$
+\item $R_L = 1\,\mathrm{k}\Omega:\quad 2.5\times\dfrac{1}{5+1} = \mathbf{0.42\,V}$
+\item $R_L = 100\,\Omega:\quad 2.5\times\dfrac{0.1}{5+0.1} = \mathbf{0.049\,V}$
+\end{itemize}
+
+\begin{answer}
+\textbf{Key insight.} The output is \key{not} a stiff $2.5\,$V. The load pulls current through $R_{Th}$, dropping voltage across it, so less reaches the output. The \key{smaller the load relative to $R_{Th}$, the bigger the drop} --- a $100\,\Omega$ load ($\ll 5\,\mathrm{k}$) almost collapses it to zero. Rule of thumb: keep the load $\ge 10\times R_{Th}$ to stay within $\sim$10\%.
+\end{answer}
+
+\section*{What the labs taught --- the keepers}
+
+\textbf{Meter habits}
+\begin{itemize}
+\item \key{Voltage} $\to$ meter in \key{parallel} (across the part). \key{Current} $\to$ meter in \key{series} (in the loop, mA socket). Never an ammeter across the supply. \key{Resistance} $\to$ only on an \key{isolated, unpowered} part.
+\item Scope ground clips are all \key{common and earthed} $\to$ use \key{one ground}. For a part not touching ground, read both ends to ground and \key{subtract} (Math A$-$B). A channel reads \key{(tip) $-$ (its own ground)}.
+\item \key{Every meter loads} the circuit (its $R_{in}$ vs $R_{Th}$): high $R_{in}$ = negligible, low $R_{in}$ = big drop. The \key{$10\times$ rule}.
+\end{itemize}
+
+\textbf{Core laws}
+\begin{itemize}
+\item \key{KVL}: drops round a loop add up to the supply ($V_R + V_{LED} = V_s$).
+\item \key{Ohm's law} $V = IR$ --- pulled from your own current sweep.
+\item \key{Power} $P = VI = I^2 R = V^2/R$; every part has a \key{wattage rating} --- exceed it $\to$ heat $\to$ failure. A \key{fuse} is a sacrificial link that blows above its rated current.
+\end{itemize}
+
+\textbf{The LED}
+\begin{itemize}
+\item It \key{clamps its voltage at $\sim$2\,V} and does \key{not limit its own current}. What destroys it is \key{current} (heat), not voltage.
+\item So it needs a \key{series resistor}: the resistor takes the leftover voltage ($V_R = V_{wiper}-2$) and \key{sets the current}, $I = (V_{wiper}-2)/470$.
+\end{itemize}
+
+\textbf{Th\'evenin \& loading}
+\begin{itemize}
+\item Any source/divider at two terminals $=$ \key{$V_{Th}$ in series with $R_{Th}$} (open-circuit voltage; resistance with sources killed).
+\item \key{Loading drops the output}: $V = V_{Th}\,R_L/(R_{Th}+R_L)$ --- watched $2.5\,$V fall to $0.049\,$V.
+\item A \key{pot is an adjustable divider}: one track split by the wiper into $R_{top}+R_{bot}$ (always $=$ full value); the wiper voltage is the output, sliding $0\to5\,$V.
+\end{itemize}
+
+\textbf{Real sources}
+\begin{itemize}
+\item A real battery/PSU $=$ \key{ideal source $+$ internal resistance} (a Th\'evenin source). Shorting gives a \key{finite} current ($V/R_\text{internal}$); a current-limited PSU caps it.
+\end{itemize}
+
+\end{document}
